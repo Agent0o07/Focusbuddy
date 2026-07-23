@@ -17,10 +17,11 @@ Works on **Chrome, Brave, Edge, Opera**, and other Chromium-based browsers.
 
 ## Installation
 
-1. Download the latest version from Releases
-2. Go to `chrome://extensions/` (or `brave://extensions/` etc.)
-3. Enable **Developer mode**
-4. Click **"Load unpacked"** and select the `Focusbuddy` folder
+1. Download the latest version from Releases.
+2. Unzip it
+3. Go to `chrome://extensions/` (or `brave://extensions/` etc.)
+4. Enable **Developer mode**
+5. Click **"Load unpacked"** and select the `Focusbuddy` folder
 
 ## Usage
 1. Open Settings and add your StudyStream accounts (email address & Password)
