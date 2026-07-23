@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Focusbuddy</title>
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    width: 320px;
+    margin: 0;
+    padding: 12px;
+    background: #f8fafc;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  h1 {
+    font-size: 16px;
+    text-align: center;
+    margin: 0 0 12px 0;
+    color: #1e3a8a;
+  }
+  .section {
+    background: white;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  label {
+    display: block;
+    margin: 6px 0 4px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 13px;
+  }
+  select, button {
+    width: 100%;
+    padding: 9px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+  }
+  button {
+    cursor: pointer;
+    font-weight: 600;
+    margin: 6px 0 4px 0;
+  }
+  .primary { background: #3b82f6; color: white; }
+  .success { background: #10b981; color: white; }
+  .info { 
+    font-weight: bold; 
+    color: #1e40af; 
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .manage-link {
+    text-align: center;
+    margin-top: 8px;
+    font-size: 12.5px;
+    color: #3b82f6;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .log-container {
+    max-height: 140px;
+    overflow-y: auto;
+    background: #f1f5f9;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+<h1>Focusbuddy</h1>
+
+<div class="section">
+  <div class="info" id="current">Loading...</div>
+  
+  <label>Switch Account</label>
+  <select id="accountSelect"></select>
+  <button class="primary" id="manualLogin">Login with Selected Account</button>
+  <button class="success" id="rotateNow">Rotate to Next Account</button>
+  
+  <div class="manage-link" id="manageAccounts">
+    Manage Accounts in Settings →
+  </div>
+</div>
+
+<div class="section">
+  <button id="viewLogs" style="background:#64748b;color:white;width:100%;">View Logs</button>
+  <div class="log-container" id="logContainer">
+    <div id="log"></div>
+  </div>
+</div>
+
+<button id="openOptions" style="background:#64748b;color:white;width:100%;">Settings</button>
+
+<script src="popup.js"></script>
+</body>
+</html>

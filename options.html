@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Focusbuddy — Settings</title>
+<style>
+  body { 
+    font-family: system-ui, sans-serif; 
+    max-width: 720px; 
+    margin: 30px auto; 
+    padding: 25px; 
+    line-height: 1.6; 
+    background: #f9fafb;
+  }
+  h1 { 
+    font-size: 28px; 
+    text-align: center; 
+    margin-bottom: 30px; 
+    color: #1e3a8a;
+  }
+  .section { 
+    background: white; 
+    padding: 20px; 
+    margin-bottom: 25px; 
+    border-radius: 10px; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e5e7eb;
+  }
+  h2 { 
+    margin: 0 0 18px 0; 
+    color: #1e40af; 
+    border-bottom: 2px solid #3b82f6; 
+    padding-bottom: 8px;
+  }
+  label { 
+    display: block; 
+    margin: 14px 0 6px; 
+    font-weight: 600; 
+    color: #374151;
+  }
+  input, select { 
+    width: 100%; 
+    padding: 10px; 
+    box-sizing: border-box; 
+    font-size: 14px; 
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+  }
+  .account-row { 
+    display: flex; 
+    gap: 10px; 
+    margin: 12px 0; 
+    align-items: center;
+  }
+  .account-row input { flex: 1; }
+  button { 
+    padding: 10px 18px; 
+    margin: 8px 5px 8px 0; 
+    cursor: pointer; 
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  .save-btn { 
+    background: #3b82f6; 
+    color: white; 
+    font-weight: 600; 
+  }
+  #addAccount {
+    background: #10b981;
+    color: white;
+  }
+  .hint { 
+    font-size: 14px; 
+    color: #1e40af; 
+    background: #eff6ff; 
+    padding: 14px; 
+    border-radius: 8px; 
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+<h1>Focusbuddy — Settings</h1>
+
+<!-- Accounts Section -->
+<div class="section">
+  <h2>Accounts (Add your StudyStream logins)</h2>
+  <div id="accounts"></div>
+  <button id="addAccount">+ Add Account</button>
+  <button class="save-btn" data-section="accounts" style="background:#10b981;">Save Accounts</button>
+</div>
+
+<div class="section">
+  <h2>App Page</h2>
+  <label>App URL Pattern <input type="text" id="appUrlPattern" value="https://app.studystream.live/focus/room*"></label>
+  <label>Zero Time Text <input type="text" id="zeroTimeText" value="0h 0m"></label>
+  <button class="save-btn" data-section="app">Save App Page Settings</button>
+</div>
+
+<div class="section">
+  <h2>Login</h2>
+  <label>Login URL <input type="text" id="loginUrlPattern" value="https://app.studystream.live/login"></label>
+  <label>Username Selector <input type="text" id="usernameSelector" value="input#email"></label>
+  <label>Password Selector <input type="text" id="passwordSelector" value="input#password"></label>
+  <label>Submit Selector <input type="text" id="submitSelector" value="button[type='submit']"></label>
+  <button class="save-btn" data-section="login">Save Login Settings</button>
+</div>
+
+<div class="section">
+  <h2>Stealth Mode (Anti-Detection)</h2>
+  <label>
+    <input type="checkbox" id="stealthMode" checked> Enable Stealth Mode
+    <small style="display:block;color:#666;font-size:12px;">Random delays + human-like typing</small>
+  </label>
+  <label>
+    <input type="checkbox" id="fingerprintEnabled" checked> Enable Fingerprint Randomization
+    <small style="display:block;color:#666;font-size:12px;">Spoof User-Agent, Canvas, Hardware, etc.</small>
+  </label>
+  <label>Min Delay (ms) <input type="number" id="minDelay" value="800"></label>
+  <label>Max Delay (ms) <input type="number" id="maxDelay" value="2200"></label>
+  <button class="save-btn" data-section="stealth">Save Stealth Settings</button>
+</div>
+
+<div class="section">
+  <h2>Post-Login Behavior</h2>
+  <label>Default Room After Login
+    <select id="defaultRoom">
+      <option value="https://app.studystream.live/focus/room">Focus Room 1 (Default)</option>
+      <option value="https://app.studystream.live/focus/room-2">Focus Room 2</option>
+    </select>
+  </label>
+  <button class="save-btn" data-section="postlogin">Save Post-Login Settings</button>
+</div>
+
+<div class="section">
+  <h2>Logout</h2>
+  <label>Cookie Domain <input type="text" id="cookieDomain" value="studystream.live"></label>
+  <button class="save-btn" data-section="logout">Save Logout Settings</button>
+</div>
+
+<script src="options.js"></script>
+
+</body>
+</html>
