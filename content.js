@@ -1,4 +1,4 @@
-// content.js - Stealth + Fingerprint
+// content.js - Stealth + Fingerprint +  Auto-Close
 (async function () {
   const { config: savedConfig } = await chrome.storage.local.get("config");
   const config = { 
@@ -22,6 +22,7 @@
     await safeFillLogin(config, pendingLogin);
   }
 
+  // Improved auto-close for only real paywalls
   autoClosePaywall();
 
 })();
@@ -29,7 +30,7 @@
 // ==================== SAFE STEALTH LOGIN ====================
 async function safeFillLogin(config, creds) {
   try {
-    console.log("🔑 Starting stealth login for", creds.username);
+    console.log("Starting stealth login for", creds.username);
     chrome.runtime.sendMessage({ type: "LOGIN_START", username: creds.username });
 
     await new Promise(r => setTimeout(r, 1800));
@@ -137,16 +138,56 @@ function waitForSelector(selector, timeout = 25000) {
   });
 }
 
+// ==================== IMPROVED AUTO CLOSE ====================
 function autoClosePaywall() {
   const tryClose = () => {
-    document.querySelectorAll('button').forEach(btn => {
-      const cls = (btn.getAttribute('class') || '').toLowerCase();
-      if (cls.includes('dismiss') || cls.includes('fluent_dismiss') || cls.includes('close')) {
-        btn.click();
+    // Only target actual paywall/dismiss buttons - much more specific
+    const selectors = [
+      'button:contains("Dismiss")',
+      '.dismiss-button',
+      '[data-dismiss]',
+      'button[aria-label*="Close"]',
+      'button[aria-label*="dismiss"]',
+      '.modal-close',
+      '.close-modal',
+      'ss-icon[iconname="dismiss"]'  // Only StudyStream's dismiss icon if needed
+    ];
+
+    document.querySelectorAll('button, ss-icon').forEach(el => {
+      const text = (el.textContent || '').toLowerCase();
+      const cls = (el.getAttribute('class') || '').toLowerCase();
+      const aria = (el.getAttribute('aria-label') || '').toLowerCase();
+
+      // Avoid clicking important buttons like "Turn camera on", settings, etc.
+      if (
+        text.includes('turn camera on') || 
+        text.includes('cancel') || 
+        cls.includes('positive') || 
+        cls.includes('start-working') ||
+        aria.includes('camera') ||
+        el.closest('.mat-mdc-dialog-container') // Don't auto-close modals
+      ) {
+        return;
+      }
+
+      // Only close obvious paywall/close buttons
+      if (
+        cls.includes('dismiss') || 
+        cls.includes('fluent_dismiss') || 
+        cls.includes('close') ||
+        text.includes('close') ||
+        text.includes('dismiss') ||
+        text.includes('got it')
+      ) {
+        el.click();
       }
     });
   };
-  setInterval(tryClose, 800);
+
+  // Run less frequently and only after page is loaded
+  setTimeout(() => {
+    setInterval(tryClose, 1500); // Increased from 800ms to 1500ms
+  }, 3000);
 }
 
 function watchForTimeUp() {
