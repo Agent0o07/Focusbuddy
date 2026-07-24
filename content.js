@@ -1,4 +1,4 @@
-// content.js - Stealth + Fingerprint +  Auto-Close
+// content.js - Stealth + Fingerprint + AutoClose
 (async function () {
   const { config: savedConfig } = await chrome.storage.local.get("config");
   const config = { 
@@ -22,7 +22,7 @@
     await safeFillLogin(config, pendingLogin);
   }
 
-  // Improved auto-close for only real paywalls
+  // Safe auto-close for paywalls only
   autoClosePaywall();
 
 })();
@@ -43,38 +43,27 @@ async function safeFillLogin(config, creds) {
       return;
     }
 
-    // Stealth: Human-like typing
     if (config.stealthMode) {
       await simulateTyping(userField, creds.username);
       await randomDelay(config.minDelay || 800, config.maxDelay || 2200);
-    } else {
-      userField.value = creds.username;
-      userField.dispatchEvent(new Event('input', { bubbles: true }));
-      userField.dispatchEvent(new Event('change', { bubbles: true }));
-      await new Promise(r => setTimeout(r, 700));
-    }
-
-    if (config.stealthMode) {
       await simulateTyping(passField, creds.password);
       await randomDelay(config.minDelay || 800, config.maxDelay || 2200);
     } else {
+      userField.value = creds.username;
       passField.value = creds.password;
+      userField.dispatchEvent(new Event('input', { bubbles: true }));
       passField.dispatchEvent(new Event('input', { bubbles: true }));
-      passField.dispatchEvent(new Event('change', { bubbles: true }));
-      await new Promise(r => setTimeout(r, 1000));
+      await new Promise(r => setTimeout(r, 700));
     }
 
-    // Submit
     let submitBtn = document.querySelector(config.submitSelector) || 
                     document.querySelector('button[type="submit"]');
 
     if (submitBtn) {
-      console.log("Clicking submit button");
       submitBtn.scrollIntoView({ behavior: "smooth" });
-      await randomDelay(300, 800);
+      await randomDelay(400, 900);
       submitBtn.click();
     } else {
-      console.warn("Submit button not found - trying form submit");
       const form = userField.closest('form') || passField.closest('form');
       if (form) form.submit();
     }
@@ -82,11 +71,10 @@ async function safeFillLogin(config, creds) {
     await chrome.storage.local.remove("pendingLogin");
     chrome.runtime.sendMessage({ type: "LOGIN_FILLED", username: creds.username });
 
-    // Redirect after login
     setTimeout(() => {
       const defaultRoom = config.defaultRoom || "https://app.studystream.live/focus/room";
       window.location.href = defaultRoom;
-    }, config.stealthMode ? 2800 : 1500);
+    }, 2800);
 
   } catch (e) {
     console.error("Login error:", e);
@@ -108,11 +96,9 @@ async function simulateTyping(element, text) {
     element.value += text[i];
     element.dispatchEvent(new Event('input', { bubbles: true }));
     element.dispatchEvent(new Event('change', { bubbles: true }));
-    await new Promise(r => setTimeout(r, 30 + Math.random() * 80));
+    await new Promise(r => setTimeout(r, 35 + Math.random() * 65));
   }
   
-  element.dispatchEvent(new Event('input', { bubbles: true }));
-  element.dispatchEvent(new Event('change', { bubbles: true }));
   element.dispatchEvent(new Event('blur', { bubbles: true }));
 }
 
@@ -138,56 +124,46 @@ function waitForSelector(selector, timeout = 25000) {
   });
 }
 
-// ==================== IMPROVED AUTO CLOSE ====================
+// ==================== VERY SAFE AUTO CLOSE ====================
 function autoClosePaywall() {
   const tryClose = () => {
-    // Only target actual paywall/dismiss buttons - much more specific
-    const selectors = [
-      'button:contains("Dismiss")',
-      '.dismiss-button',
-      '[data-dismiss]',
-      'button[aria-label*="Close"]',
-      'button[aria-label*="dismiss"]',
-      '.modal-close',
-      '.close-modal',
-      'ss-icon[iconname="dismiss"]'  // Only StudyStream's dismiss icon if needed
-    ];
-
     document.querySelectorAll('button, ss-icon').forEach(el => {
-      const text = (el.textContent || '').toLowerCase();
+      const text = (el.textContent || '').toLowerCase().trim();
       const cls = (el.getAttribute('class') || '').toLowerCase();
-      const aria = (el.getAttribute('aria-label') || '').toLowerCase();
+      const iconName = el.getAttribute('iconname') || '';
 
-      // Avoid clicking important buttons like "Turn camera on", settings, etc.
+      // === STRICT BLOCKLIST - Never touch these ===
       if (
-        text.includes('turn camera on') || 
-        text.includes('cancel') || 
-        cls.includes('positive') || 
-        cls.includes('start-working') ||
-        aria.includes('camera') ||
-        el.closest('.mat-mdc-dialog-container') // Don't auto-close modals
+        text.includes("turn camera on") ||
+        text.includes("cancel") ||
+        text.includes("close menu") ||
+        cls.includes("positive") ||
+        cls.includes("start-working") ||
+        iconName === "settings" ||
+        iconName === "video_off" ||
+        iconName === "dismiss" && el.closest('.mat-mdc-menu-panel') || // profile menu
+        el.closest('.mat-mdc-menu-panel') ||          // any menu
+        el.closest('.mat-mdc-dialog-container') ||    // any dialog
+        el.closest('.cdk-overlay-pane')               // any overlay
       ) {
         return;
       }
 
-      // Only close obvious paywall/close buttons
+      // Only close clear paywall buttons
       if (
-        cls.includes('dismiss') || 
-        cls.includes('fluent_dismiss') || 
-        cls.includes('close') ||
-        text.includes('close') ||
-        text.includes('dismiss') ||
-        text.includes('got it')
+        cls.includes('fluent_dismiss') ||
+        cls.includes('dismiss-button') ||
+        text === 'got it' ||
+        text === 'close' && !el.closest('.mat-mdc-menu-panel')
       ) {
         el.click();
       }
     });
   };
 
-  // Run less frequently and only after page is loaded
   setTimeout(() => {
-    setInterval(tryClose, 1500); // Increased from 800ms to 1500ms
-  }, 3000);
+    setInterval(tryClose, 2200);   // Even slower
+  }, 5000);
 }
 
 function watchForTimeUp() {
@@ -199,5 +175,5 @@ function watchForTimeUp() {
       chrome.runtime.sendMessage({ type: "TIME_UP" });
     }
   };
-  setInterval(check, 2000);
+  setInterval(check, 2500);
 }
