@@ -1,4 +1,4 @@
-// behavior.js - Human-like Behavior
+// behavior.js - Human like Behavior
 (async function () {
   const simulateHumanBehavior = () => {
     // Random mouse movements
