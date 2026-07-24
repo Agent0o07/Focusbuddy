@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Focusbuddy",
-  "version": "1.0.0",
-  "description": "StudyStream account rotator with stealth login + fingerprint randomization",
-  "author": " thedarkknight",
+  "version": "1.1.0",
+  "description": "StudyStream account rotator with advanced stealth & anti-detection",
+  "author": "thedarkknight",
   "homepage_url": "https://github.com/Agent0o07/focusbuddy",
   "permissions": [
     "storage",
@@ -20,7 +20,7 @@
   "content_scripts": [
     {
       "matches": ["https://*.studystream.live/*"],
-      "js": ["fingerprint.js", "content.js"],
+      "js": ["fingerprint.js", "behavior.js", "content.js"],
       "run_at": "document_start"
     }
   ],
