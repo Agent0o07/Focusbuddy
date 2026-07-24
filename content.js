@@ -10,15 +10,18 @@
 
   const url = window.location.href;
 
+  // Timer in focus rooms
   if (config.appUrlPattern && url.includes("focus")) {
     watchForTimeUp();
   }
 
+  // Auto-login
   const { pendingLogin } = await chrome.storage.local.get("pendingLogin");
   if (pendingLogin && url.includes("/login")) {
     await safeFillLogin(config, pendingLogin);
   }
 
+  // Safe dismiss with good delay
   safeDismissPaywall();
 
 })();
@@ -49,7 +52,9 @@ async function safeFillLogin(config, creds) {
       await new Promise(r => setTimeout(r, 700));
     }
 
-    let submitBtn = document.querySelector(config.submitSelector) || document.querySelector('button[type="submit"]');
+    let submitBtn = document.querySelector(config.submitSelector) || 
+                    document.querySelector('button[type="submit"]');
+
     if (submitBtn) {
       submitBtn.scrollIntoView({ behavior: "smooth" });
       await randomDelay(400, 900);
@@ -69,6 +74,7 @@ async function safeFillLogin(config, creds) {
 
   } catch (e) {
     console.error("Login error:", e);
+    chrome.runtime.sendMessage({ type: "LOGIN_ERROR", error: e.message });
   }
 }
 
@@ -84,7 +90,7 @@ async function simulateTyping(element, text) {
   for (let i = 0; i < text.length; i++) {
     element.value += text[i];
     element.dispatchEvent(new Event('input', { bubbles: true }));
-    await new Promise(r => setTimeout(r, 40));
+    await new Promise(r => setTimeout(r, 35 + Math.random() * 65));
   }
   element.dispatchEvent(new Event('blur', { bubbles: true }));
 }
@@ -104,24 +110,21 @@ function waitForSelector(selector, timeout = 25000) {
   });
 }
 
-// ==================== SAFE DISMISS ====================
+// ==================== SAFE DISMISS WITH DELAY ====================
 function safeDismissPaywall() {
   const tryDismiss = () => {
     const dismiss = document.querySelector('ss-pricing-testimonials-modal i.default-20.icon-ic_fluent_dismiss_20_filled');
-
     if (dismiss) {
       console.log("%cDismissing pricing modal", "color: #10b981");
       dismiss.click();
-
       const parentBtn = dismiss.closest('button');
       if (parentBtn) parentBtn.click();
     }
   };
 
-  // Start checking after sufficient delay
   setTimeout(() => {
     setInterval(tryDismiss, 1500);
-  }, 3500);
+  }, 3800); // Good delay after login
 }
 
 function watchForTimeUp() {
